@@ -90,51 +90,51 @@ print(dumps(second_child, indent=4, sort_keys=True, cls=PrivilegesEncoder))
 
 ```json
 {
-        "parent": {
-            "parent": {
-                "parent": null,
-                "uid": "ROOT",
-                "value": {
-                    "inMsg": true,
-                    "inSts": false,
-                    "inTel": true,
-                    "inVid": false,
-                    "inVis": true,
-                    "outMsg": false,
-                    "outSts": false,
-                    "outTel": false,
-                    "outVid": false,
-                    "outVis": false
-                }
-            },
-            "uid": "FIRST",
-            "value": {
-                "inMsg": true,
-                "inSts": true,
-                "inTel": true,
-                "inVid": true,
-                "inVis": true,
-                "outMsg": true,
-                "outSts": true,
-                "outTel": true,
-                "outVid": true,
-                "outVis": true
-            }
-        },
-        "uid": "SECOND",
-        "value": {
-            "inMsg": false,
-            "inSts": true,
-            "inTel": true,
-            "inVid": false,
-            "inVis": false,
-            "outMsg": true,
-            "outSts": true,
-            "outTel": true,
-            "outVid": true,
-            "outVis": true
-        }
+  "parent": {
+    "parent": {
+      "parent": null,
+      "uid": "ROOT",
+      "value": {
+        "inMsg": true,
+        "inSts": false,
+        "inTel": true,
+        "inVid": false,
+        "inVis": true,
+        "outMsg": false,
+        "outSts": false,
+        "outTel": false,
+        "outVid": false,
+        "outVis": false
+      }
+    },
+    "uid": "FIRST",
+    "value": {
+      "inMsg": true,
+      "inSts": true,
+      "inTel": true,
+      "inVid": true,
+      "inVis": true,
+      "outMsg": true,
+      "outSts": true,
+      "outTel": true,
+      "outVid": true,
+      "outVis": true
     }
+  },
+  "uid": "SECOND",
+  "value": {
+    "inMsg": false,
+    "inSts": true,
+    "inTel": true,
+    "inVid": false,
+    "inVis": false,
+    "outMsg": true,
+    "outSts": true,
+    "outTel": true,
+    "outVid": true,
+    "outVis": true
+  }
+}
 ```
 
 ```python
@@ -143,36 +143,36 @@ print(dumps(empty_child, indent=4, sort_keys=True, cls=PrivilegesEncoder))
 
 ```json
     {
-        "parent": {
-            "parent": null,
-            "uid": "ROOT",
-            "value": {
-                "inMsg": true,
-                "inSts": false,
-                "inTel": true,
-                "inVid": false,
-                "inVis": true,
-                "outMsg": false,
-                "outSts": false,
-                "outTel": false,
-                "outVid": false,
-                "outVis": false
-            }
-        },
-        "uid": "EMPTY",
-        "value": {
-            "inMsg": true,
-            "inSts": false,
-            "inTel": true,
-            "inVid": false,
-            "inVis": true,
-            "outMsg": false,
-            "outSts": false,
-            "outTel": false,
-            "outVid": false,
-            "outVis": false
-        }
+  "parent": {
+    "parent": null,
+    "uid": "ROOT",
+    "value": {
+      "inMsg": true,
+      "inSts": false,
+      "inTel": true,
+      "inVid": false,
+      "inVis": true,
+      "outMsg": false,
+      "outSts": false,
+      "outTel": false,
+      "outVid": false,
+      "outVis": false
     }
+  },
+  "uid": "EMPTY",
+  "value": {
+    "inMsg": true,
+    "inSts": false,
+    "inTel": true,
+    "inVid": false,
+    "inVis": true,
+    "outMsg": false,
+    "outSts": false,
+    "outTel": false,
+    "outVid": false,
+    "outVis": false
+  }
+}
 ```
 
 7. Пример уведомления ВСЕХ родительских объектов об изменении ROOT (класс `notify.Notifier`)
@@ -180,6 +180,7 @@ print(dumps(empty_child, indent=4, sort_keys=True, cls=PrivilegesEncoder))
 ```python
 def callback(obj: Privilege):
     print('Обновился объект %r' % obj)
+
 
 Notifier.notify(obj=root, parent_type=Privilege, callback=callback)
 ```
@@ -233,4 +234,11 @@ Notifier.notify(obj=root, parent_type=Privilege, callback=callback)
         "outVid": true,
         "outVis": true
     }
+```
+
+8. Приведем привилегии к численным значениям, в котором их удобно хранить в базе данных (в виде числа [0, 1024))
+
+```python
+print(int(first_child))  # 1023
+print(int(root))  # 289
 ```

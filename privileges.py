@@ -1,7 +1,6 @@
-import collections
 from enum import Enum
 from json import dumps, JSONEncoder
-from typing import List, Any, Optional, Dict, Iterable
+from typing import Any, Optional, Dict, List
 from uuid import uuid4
 
 from bits import Bit
@@ -10,17 +9,17 @@ from bits import Bit
 class EventsBitValues(Enum):
     """Enum с номерами битов в соответствии с операциями"""
     # Input
-    inMsg = 0
-    inSts = 1
-    inTel = 2
-    inVid = 3
-    inVis = 4
+    inMsg = 0  # получение текстовых сообщений
+    inSts = 1  # получение статуса присутствия
+    inTel = 2  # получение телефонных звонков
+    inVid = 3  # получение видео звонков
+    inVis = 4  # видимость в адресной книге
     # Output
-    outMsg = 5
-    outSts = 6
-    outTel = 7
-    outVid = 8
-    outVis = 9
+    outMsg = 5  # отправка текстовых сообщений
+    outSts = 6  # отправка статуса присутствия
+    outTel = 7  # отправка телефонных звонков
+    outVid = 8  # отправка видео звонков
+    outVis = 9  # видимость в адресной книге
 
 
 class Privilege:
@@ -30,21 +29,24 @@ class Privilege:
         empty_bits = len(EventsBitValues) - len(bits)
         self._parent = parent
         self._bits = Privilege._fill_none_bits(
-            bits_sequence=collections.deque(bits + [Bit.false, ] * empty_bits, maxlen=len(EventsBitValues)),
+            bits_sequence=bits + [Bit.false, ] * empty_bits,
             parent=self._parent
-        )
+        )[: len(EventsBitValues)]
 
         self._uid = uid  # на кого ссылается данное правило
 
     @staticmethod
     def _fill_none_bits(
-            bits_sequence: Iterable[Optional[Bit]],
+            bits_sequence: List[Optional[Bit]],
             parent: Optional['Privilege']
-    ) -> Iterable[Optional[Bit]]:
+    ) -> List[Optional[Bit]]:
+        """Заполнение значениями пустых бит"""
+        # если есть родитель - берем значения у него
         if isinstance(parent, Privilege):
-            return list(
-                map(lambda x: parent.get_bit(EventsBitValues(x[0])) if x[1] is None else x[1], enumerate(bits_sequence))
-            )
+            return list(map(
+                lambda x: parent.get_bit(EventsBitValues(x[0])) if x[1] is None else x[1], enumerate(bits_sequence)
+            ))
+        # в противном случае берем дефолтное значение Bit.false
         return list(map(lambda x: Bit.false if x is None else x, bits_sequence))
 
     def get_bit(self, bit_name: EventsBitValues):
@@ -99,6 +101,10 @@ class Privilege:
             'uid': pr.uid,
             'value': Privilege.as_json(pr)
         }
+
+    def __int__(self):
+        """Представление в виде числа [0, 1023] (так как задается 10 битами)"""
+        return int(''.join(map(lambda bit: str(int(bit.bit)), self.value)), base=2)
 
     def __str__(self):
         return self.__repr__()

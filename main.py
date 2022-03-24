@@ -181,3 +181,7 @@ if __name__ == '__main__':
         "outVis": true
     }
     """
+
+    # Приводим к числовому формату
+    print(int(first_child))  # 1023
+    print(int(root))  # 289
