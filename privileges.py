@@ -50,7 +50,7 @@ class Privilege:
         return list(map(lambda x: Bit.false if x is None else x, bits_sequence))
 
     def get_bit(self, bit_name: EventsBitValues):
-        return self._bits[bit_name.value]
+        return self.value[bit_name.value]
 
     def set_bit(self, bit_name: EventsBitValues, bit: Bit) -> None:
         self._bits[bit_name.value].bit = bit.bit
@@ -127,7 +127,7 @@ class Privilege:
         """
         result_bits = [None, ] * len(EventsBitValues)  # type: List[Optional[Bit]]
         for bit in EventsBitValues:
-            result_bits[bit.value] = self.value[bit.value] & other.value[bit.value]
+            result_bits[bit.value] = self.get_bit(bit) & other.get_bit(bit)
         return Privilege(bits=result_bits)
 
     @property
