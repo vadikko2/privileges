@@ -48,6 +48,8 @@ class Privilege:
             parent_privileges: Optional['Privilege'] = None,
             uid: Optional[Any] = None
     ):
+        """Фабричный метод создания объекта на основе
+        списка Bit объектов и/или родительского объекта"""
         if not privileges and isinstance(parent_privileges, Privilege):
             return cls(
                 bits=list(parent_privileges.value),

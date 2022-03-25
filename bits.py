@@ -1,4 +1,5 @@
 class BitMeta(type):
+    """Метакласс, реализующий фабричные property методы."""
 
     @property
     def true(cls):
