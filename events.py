@@ -47,8 +47,8 @@ class EventReversMeta(type):
 class EventReverser(metaclass=EventReversMeta):
     """
     Переводит номер операции в номер обратной операции.
-    Например EventsBitValues.inMsg -> EventsBitValues.outMsg.
-    Bли наоборот EventsBitValues.outMsg -> EventsBitValues.inMsg.
+    Например: EventsBitValues.inMsg -> EventsBitValues.outMsg.
+    Или наоборот: EventsBitValues.outMsg -> EventsBitValues.inMsg.
     """
 
     @staticmethod
