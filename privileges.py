@@ -24,7 +24,7 @@ class Privilege:
     def __init__(self, bits: List[Optional[Bit]], parent: Optional['Privilege'] = None, uid: Any = uuid4()):
         empty_bits = len(EventsBitValues) - len(bits)
         self._parent = parent
-        self._bits = Privilege._fill_none_bits(
+        self._bits = self._fill_none_bits(
             bits_sequence=bits + [Bit.false, ] * empty_bits,
             parent=self._parent
         )[: len(EventsBitValues)]
@@ -91,11 +91,11 @@ class Privilege:
         """
         Фабричный метод создания объекта на основе первых 10 бит int числа
         """
-        bits = Privilege.int_to_bits(value)
+        bits = cls.int_to_bits(value)
         if not uid:
             raise ValueError('UID mast be specified if not specified parent_privileges')
 
-        return Privilege(bits=bits, uid=uid)
+        return cls(bits=bits, uid=uid)
 
     @staticmethod
     def int_to_bits(value: int) -> List[Bit]:
@@ -121,9 +121,9 @@ class Privilege:
             return
 
         return {
-            'parent': Privilege.as_tree(pr.parent),
+            'parent': pr.as_tree(pr.parent),
             'uid': pr.uid,
-            'value': Privilege.as_json(pr)
+            'value': pr.as_json(pr)
         }
 
     def __int__(self):
@@ -135,11 +135,11 @@ class Privilege:
 
     def __repr__(self):
         return '%s %s' % (
-            self.uid, dumps(Privilege.as_json(self), indent=4, sort_keys=True)
+            self.uid, dumps(self.as_json(self), indent=4, sort_keys=True)
         )
 
     def __hash__(self):
-        return hash(self.uid)
+        return hash(dumps(self.as_tree(self), sort_keys=True, cls=PrivilegesEncoder))
 
     def __eq__(self, other: 'Privilege'):
         return self.value == other.value
@@ -152,7 +152,7 @@ class Privilege:
         result_bits = [None, ] * len(EventsBitValues)  # type: List[Optional[Bit]]
         for bit in EventsBitValues:
             result_bits[bit.value] = self.get_bit(bit) & other.get_bit(EventReverser.reverse(bit))
-        return Privilege(bits=result_bits)
+        return self.__class__(bits=result_bits)
 
     @property
     def value(self):
@@ -171,4 +171,4 @@ class PrivilegesEncoder(JSONEncoder):
     """JSONEncoder для объектов Privilege (чтобы можно было сделать json.dumps)"""
 
     def default(self, o: Privilege) -> Any:
-        return Privilege.as_tree(o)
+        return o.as_tree(o)

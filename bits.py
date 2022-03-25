@@ -41,6 +41,6 @@ class Bit(metaclass=BitMeta):
            1   |    1     |    1
         """
         if self.bit and other.bit:
-            return Bit.true
+            return self.__class__.true
         else:
-            return Bit.false
+            return self.__class__.false
