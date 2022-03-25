@@ -7,6 +7,18 @@ from events import EventsBitValues, EventReverser
 
 
 class Privilege:
+    """
+    Привилегия (элемент в цепочке иерархических привилегий).
+    Содержит в себе:
+    1. Последовательность Bit, задающую правила
+    2. UID идентификатор того, на кого эти правила распространяются
+    3. Ссылку на родительский объект (вышестоящие правила относительно того же объекта с идентификатором UID)
+    Предоставляет:
+    1. Фабричные методы создания объектов на основе родителя
+    2. API работы с объектом (сравнение, получение совместной привилегии, изменение объекта)
+    3. API по получения состояния (отображения) объекта в разных форматах (дерево наследования, обычный JSON,
+    для вывода на экран, в числовом формате для записи в базу)
+    """
     __slots__ = ('_bits', '_uid', '_parent')
 
     def __init__(self, bits: List[Optional[Bit]], parent: Optional['Privilege'] = None, uid: Any = uuid4()):
@@ -133,6 +145,7 @@ class Privilege:
 
 
 class PrivilegesEncoder(JSONEncoder):
+    """JSONEncoder для объектов Privilege (чтобы можно было сделать json.dumps)"""
 
     def default(self, o: Privilege) -> Any:
         return Privilege.as_tree(o)
