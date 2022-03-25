@@ -2,8 +2,8 @@ from json import dumps, JSONEncoder
 from typing import Any, Optional, Dict, List
 from uuid import uuid4
 
-from bits import Bit
-from events import EventsBitValues, EventReverser
+from privileges.bits import Bit
+from privileges.events import EventsBitValues, EventReverser
 
 
 class Privilege:

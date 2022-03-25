@@ -1,10 +1,10 @@
 from json import dumps
 
-from bits import Bit
-from callbacks import print_callback
-from events import EventsBitValues
-from notify import Notifier
 from privileges import Privilege, PrivilegesEncoder
+from privileges.bits import Bit
+from privileges.events import EventsBitValues
+from privileges.notify import Notifier
+from privileges.notify.callbacks import print_callback
 
 
 class NotifyingPrivileges(Privilege):
