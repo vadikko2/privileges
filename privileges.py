@@ -51,9 +51,11 @@ class Privilege:
         return list(map(lambda x: Bit.false if x is None else x, bits_sequence))
 
     def get_bit(self, bit_name: EventsBitValues):
+        """Получение бита по номеру"""
         return self.value[bit_name.value]
 
     def set_bit(self, bit_name: EventsBitValues, bit: Bit) -> None:
+        """Установка бита по номеру"""
         self._bits[bit_name.value].bit = bit.bit
 
     @classmethod
