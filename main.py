@@ -182,6 +182,37 @@ if __name__ == '__main__':
     }
     """
 
+    Notifier.notify(first_child, parent_type=Privilege, callback=callback)
+
+    """
+    Обновился объект FIRST {
+        "inMsg": true,
+        "inSts": true,
+        "inTel": true,
+        "inVid": true,
+        "inVis": true,
+        "outMsg": true,
+        "outSts": true,
+        "outTel": true,
+        "outVid": true,
+        "outVis": true
+    }
+    Обновился объект SECOND {
+        "inMsg": false,
+        "inSts": true,
+        "inTel": true,
+        "inVid": false,
+        "inVis": false,
+        "outMsg": true,
+        "outSts": true,
+        "outTel": true,
+        "outVid": true,
+        "outVis": true
+    }
+    """
     # Приводим к числовому формату
     print(int(first_child))  # 1023
     print(int(root))  # 289
+
+    # вычисляем совместное значение привилегии
+    print(int(first_child & root))  # 0

@@ -236,9 +236,57 @@ Notifier.notify(obj=root, parent_type=Privilege, callback=callback)
     }
 ```
 
-8. Приведем привилегии к численным значениям, в котором их удобно хранить в базе данных (в виде числа [0..1023])
+```python
+Notifier.notify(first_child, parent_type=Privilege, callback=callback)
+```
+
+```text
+    Обновился объект FIRST {
+        "inMsg": true,
+        "inSts": true,
+        "inTel": true,
+        "inVid": true,
+        "inVis": true,
+        "outMsg": true,
+        "outSts": true,
+        "outTel": true,
+        "outVid": true,
+        "outVis": true
+    }
+    Обновился объект SECOND {
+        "inMsg": false,
+        "inSts": true,
+        "inTel": true,
+        "inVid": false,
+        "inVis": false,
+        "outMsg": true,
+        "outSts": true,
+        "outTel": true,
+        "outVid": true,
+        "outVis": true
+    }
+```
+
+8. Приведем привилегии к численным значениям, в котором их удобно хранить в базе данных (в виде числа [0..1023], так как
+   привилегия кодируется 10 битами)
 
 ```python
 print(int(first_child))  # 1023
 print(int(root))  # 289
+```
+
+9. Проверяем результат совместного применения привилегии по правилам:
+
+```text
+        Проверяет у одного Input а у другого Output на одни и те же услуги и наоборот.
+        Правила разрешения по каждой услуге:
+        INPUT  |  OUTPUT  |  RESULT
+           0   |    0     |    0
+           0   |    1     |    0
+           1   |    0     |    0
+           1   |    1     |    1
+```
+
+```python
+print(int(first_child & root))  # 0
 ```
