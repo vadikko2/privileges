@@ -1,9 +1,22 @@
 from json import dumps
 
 from bits import Bit
+from callbacks import print_callback
 from events import EventsBitValues
 from notify import Notifier
 from privileges import Privilege, PrivilegesEncoder
+
+
+class NotifyingPrivileges(Privilege):
+    """
+    Реализует уведомление всех родительских объектов об изменении привилегии
+    """
+
+    @Notifier.notify(callback=print_callback)
+    def set_bit(self, *args, **kwargs) -> None:
+        """Уведомляет всех родителей при внесении изменений в привилегию"""
+        return super(NotifyingPrivileges, self).set_bit(*args, **kwargs)
+
 
 if __name__ == '__main__':
     # определяем корневого родителя
@@ -40,177 +53,29 @@ if __name__ == '__main__':
     assert first_child.get_bit(EventsBitValues.inVis) is not second_child.get_bit(EventsBitValues.inVis)
 
     print(dumps(second_child, indent=4, sort_keys=True, cls=PrivilegesEncoder))
-    """
-    {
-        "parent": {
-            "parent": {
-                "parent": null,
-                "uid": "ROOT",
-                "value": {
-                    "inMsg": true,
-                    "inSts": false,
-                    "inTel": true,
-                    "inVid": false,
-                    "inVis": true,
-                    "outMsg": false,
-                    "outSts": false,
-                    "outTel": false,
-                    "outVid": false,
-                    "outVis": false
-                }
-            },
-            "uid": "FIRST",
-            "value": {
-                "inMsg": true,
-                "inSts": true,
-                "inTel": true,
-                "inVid": true,
-                "inVis": true,
-                "outMsg": true,
-                "outSts": true,
-                "outTel": true,
-                "outVid": true,
-                "outVis": true
-            }
-        },
-        "uid": "SECOND",
-        "value": {
-            "inMsg": false,
-            "inSts": true,
-            "inTel": true,
-            "inVid": false,
-            "inVis": false,
-            "outMsg": true,
-            "outSts": true,
-            "outTel": true,
-            "outVid": true,
-            "outVis": true
-        }
-    }
-    """
-
     print(dumps(empty_child, indent=4, sort_keys=True, cls=PrivilegesEncoder))
-    """
-    {
-        "parent": {
-            "parent": null,
-            "uid": "ROOT",
-            "value": {
-                "inMsg": true,
-                "inSts": false,
-                "inTel": true,
-                "inVid": false,
-                "inVis": true,
-                "outMsg": false,
-                "outSts": false,
-                "outTel": false,
-                "outVid": false,
-                "outVis": false
-            }
-        },
-        "uid": "EMPTY",
-        "value": {
-            "inMsg": true,
-            "inSts": false,
-            "inTel": true,
-            "inVid": false,
-            "inVis": true,
-            "outMsg": false,
-            "outSts": false,
-            "outTel": false,
-            "outVid": false,
-            "outVis": false
-        }
-    }
-    """
-
 
     # Пример уведомления ВСЕХ родительских объектов об изменении ROOT
 
-    def callback(obj: Privilege):
-        print('Обновился объект %r' % obj)
+    root_ = NotifyingPrivileges(
+        bits=[None, Bit.true, Bit.false, None, Bit.true, Bit.false, Bit.true, None, None, Bit.true],
+        uid='ROOT_'
+    )
+    first_child_ = NotifyingPrivileges.create_privilege(
+        privileges={key: Bit.true for key in EventsBitValues},
+        parent_privileges=root_, uid='FIRST_'
+    )
+    second_child_ = NotifyingPrivileges.create_privilege(
+        {key: Bit.false for key in [
+            EventsBitValues.inVis,
+            EventsBitValues.inVid,
+            EventsBitValues.inMsg
+        ]}, parent_privileges=first_child_, uid='SECOND_'
+    )
+    empty_child_ = NotifyingPrivileges.create_privilege({}, parent_privileges=root_, uid='EMPTY_')
 
-
-    Notifier.notify(obj=root, parent_type=Privilege, callback=callback)
-    """
-    Обновился объект ROOT {
-        "inMsg": true,
-        "inSts": false,
-        "inTel": true,
-        "inVid": false,
-        "inVis": true,
-        "outMsg": false,
-        "outSts": false,
-        "outTel": false,
-        "outVid": false,
-        "outVis": false
-    }
-    Обновился объект EMPTY {
-        "inMsg": true,
-        "inSts": false,
-        "inTel": true,
-        "inVid": false,
-        "inVis": true,
-        "outMsg": false,
-        "outSts": false,
-        "outTel": false,
-        "outVid": false,
-        "outVis": false
-    }
-    Обновился объект FIRST {
-        "inMsg": true,
-        "inSts": true,
-        "inTel": true,
-        "inVid": true,
-        "inVis": true,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-    Обновился объект SECOND {
-        "inMsg": false,
-        "inSts": true,
-        "inTel": true,
-        "inVid": false,
-        "inVis": false,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-    """
-
-    Notifier.notify(first_child, parent_type=Privilege, callback=callback)
-
-    """
-    Обновился объект FIRST {
-        "inMsg": true,
-        "inSts": true,
-        "inTel": true,
-        "inVid": true,
-        "inVis": true,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-    Обновился объект SECOND {
-        "inMsg": false,
-        "inSts": true,
-        "inTel": true,
-        "inVid": false,
-        "inVis": false,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-    """
+    root_.set_bit(EventsBitValues.inVis, Bit.false)
+    first_child_.set_bit(EventsBitValues.inVis, Bit.true)
     # Приводим к числовому формату
     print(int(first_child))  # 1023
     print(int(root))  # 289

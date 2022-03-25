@@ -175,96 +175,135 @@ print(dumps(empty_child, indent=4, sort_keys=True, cls=PrivilegesEncoder))
 }
 ```
 
-7. Пример уведомления ВСЕХ родительских объектов об изменении ROOT (класс `notify.Notifier`)
+7. Пример уведомления ВСЕХ родительских объектов об изменении объекта `Privilege`
+
+Реализуем класс с уведомлениями при помощи декоратора `@Notifier.notify(callback=print_callback)`
 
 ```python
-def callback(obj: Privilege):
-    print('Обновился объект %r' % obj)
+class NotifyingPrivileges(Privilege):
+    """
+    Реализует уведомление всех родительских объектов об изменении привилегии
+    """
 
-
-Notifier.notify(obj=root, parent_type=Privilege, callback=callback)
+    @Notifier.notify(callback=print_callback)
+    def set_bit(self, *args, **kwargs) -> None:
+        """Уведомляет всех родителей при внесении изменений в привилегию"""
+        return super(NotifyingPrivileges, self).set_bit(*args, **kwargs)
 ```
 
-```text
-    Обновился объект ROOT {
-        "inMsg": true,
-        "inSts": false,
-        "inTel": true,
-        "inVid": false,
-        "inVis": true,
-        "outMsg": false,
-        "outSts": false,
-        "outTel": false,
-        "outVid": false,
-        "outVis": false
-    }
-    Обновился объект EMPTY {
-        "inMsg": true,
-        "inSts": false,
-        "inTel": true,
-        "inVid": false,
-        "inVis": true,
-        "outMsg": false,
-        "outSts": false,
-        "outTel": false,
-        "outVid": false,
-        "outVis": false
-    }
-    Обновился объект FIRST {
-        "inMsg": true,
-        "inSts": true,
-        "inTel": true,
-        "inVid": true,
-        "inVis": true,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-    Обновился объект SECOND {
-        "inMsg": false,
-        "inSts": true,
-        "inTel": true,
-        "inVid": false,
-        "inVis": false,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-```
+Создаем новые объекты класса `NotifyingPrivileges`. Наследуем друг от друга.
 
 ```python
-Notifier.notify(first_child, parent_type=Privilege, callback=callback)
+root_ = NotifyingPrivileges(
+    bits=[None, Bit.true, Bit.false, None, Bit.true, Bit.false, Bit.true, None, None, Bit.true],
+    uid='ROOT_'
+)
+first_child_ = NotifyingPrivileges.create_privilege(
+    privileges={key: Bit.true for key in EventsBitValues},
+    parent_privileges=root_, uid='FIRST_'
+)
+second_child_ = NotifyingPrivileges.create_privilege(
+    {key: Bit.false for key in [
+        EventsBitValues.inVis,
+        EventsBitValues.inVid,
+        EventsBitValues.inMsg
+    ]}, parent_privileges=first_child_, uid='SECOND_'
+)
+empty_child_ = NotifyingPrivileges.create_privilege({}, parent_privileges=root_, uid='EMPTY_')
 ```
 
+Изменяем объект `ROOT_`
+
+```python
+root_.set_bit(EventsBitValues.inVis, Bit.false)
+```
+
+Ловим уведомление об изменении у родительских объектов
+
 ```text
-    Обновился объект FIRST {
-        "inMsg": true,
-        "inSts": true,
-        "inTel": true,
-        "inVid": true,
-        "inVis": true,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
-    Обновился объект SECOND {
-        "inMsg": false,
-        "inSts": true,
-        "inTel": true,
-        "inVid": false,
-        "inVis": false,
-        "outMsg": true,
-        "outSts": true,
-        "outTel": true,
-        "outVid": true,
-        "outVis": true
-    }
+Обновился объект ROOT_ {
+    "inMsg": false,
+    "inSts": true,
+    "inTel": false,
+    "inVid": false,
+    "inVis": false,
+    "outMsg": false,
+    "outSts": true,
+    "outTel": false,
+    "outVid": false,
+    "outVis": true
+}
+Обновился объект FIRST_ {
+    "inMsg": true,
+    "inSts": true,
+    "inTel": true,
+    "inVid": true,
+    "inVis": true,
+    "outMsg": true,
+    "outSts": true,
+    "outTel": true,
+    "outVid": true,
+    "outVis": true
+}
+Обновился объект SECOND_ {
+    "inMsg": false,
+    "inSts": true,
+    "inTel": true,
+    "inVid": false,
+    "inVis": false,
+    "outMsg": true,
+    "outSts": true,
+    "outTel": true,
+    "outVid": true,
+    "outVis": true
+}
+Обновился объект EMPTY_ {
+    "inMsg": false,
+    "inSts": true,
+    "inTel": false,
+    "inVid": false,
+    "inVis": false,
+    "outMsg": false,
+    "outSts": true,
+    "outTel": false,
+    "outVid": false,
+    "outVis": true
+}
+```
+
+Изменяем объект `FIRST_`
+
+```python
+first_child_.set_bit(EventsBitValues.inVis, Bit.true)
+```
+
+Ловим уведомление об изменении у родительских объектов
+
+```text
+Обновился объект FIRST_ {
+    "inMsg": true,
+    "inSts": true,
+    "inTel": true,
+    "inVid": true,
+    "inVis": true,
+    "outMsg": true,
+    "outSts": true,
+    "outTel": true,
+    "outVid": true,
+    "outVis": true
+}
+Обновился объект SECOND_ {
+    "inMsg": false,
+    "inSts": true,
+    "inTel": true,
+    "inVid": false,
+    "inVis": false,
+    "outMsg": true,
+    "outSts": true,
+    "outTel": true,
+    "outVid": true,
+    "outVis": true
+}
 ```
 
 8. Приведем привилегии к численным значениям, в котором их удобно хранить в базе данных (в виде числа [0..1023], так как
