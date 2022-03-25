@@ -329,3 +329,26 @@ print(int(root))  # 289
 ```python
 print(int(root & first_child))  # 289
 ```
+
+10. Сгенерируем `Privilege` из `int`
+
+```python
+from_int = Privilege.from_int(289, uid='FROM INT')
+assert root == from_int  # True
+print(from_int)
+```
+
+```text
+FROM INT {
+    "inMsg": false,
+    "inSts": true,
+    "inTel": false,
+    "inVid": false,
+    "inVis": true,
+    "outMsg": false,
+    "outSts": false,
+    "outTel": false,
+    "outVid": false,
+    "outVis": true
+}
+```

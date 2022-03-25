@@ -82,3 +82,8 @@ if __name__ == '__main__':
 
     # вычисляем совместное значение привилегии
     print(int(root & first_child))  # 289
+
+    # сгенерируем Privilege из int
+    from_int = Privilege.from_int(289, uid='FROM INT')
+    assert root == from_int
+    print(from_int)

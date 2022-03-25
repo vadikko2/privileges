@@ -83,6 +83,29 @@ class Privilege:
                 raise ValueError('UID mast be specified if not specified parent_privileges')
         return cls(result, uid=uid, parent=parent_privileges)
 
+    @classmethod
+    def from_int(
+            cls, value: int,
+            uid: Optional[Any]
+    ):
+        """
+        Фабричный метод создания объекта на основе первых 10 бит int числа
+        """
+        bits = Privilege.int_to_bits(value)
+        if not uid:
+            raise ValueError('UID mast be specified if not specified parent_privileges')
+
+        return Privilege(bits=bits, uid=uid)
+
+    @staticmethod
+    def int_to_bits(value: int) -> List[Bit]:
+        bits = [Bit.false] * len(EventsBitValues)  # type: List[Bit]
+        bit_string = format(value, '010b')
+        for bit in EventsBitValues:
+            if bit_string[bit.value] == '1':
+                bits[bit.value] = Bit.true
+        return bits
+
     @staticmethod
     def as_json(pr: 'Privilege'):
         """Переводит значение в человеко-читаемый вид"""
