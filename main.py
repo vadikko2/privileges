@@ -215,4 +215,4 @@ if __name__ == '__main__':
     print(int(root))  # 289
 
     # вычисляем совместное значение привилегии
-    print(int(first_child & root))  # 0
+    print(int(root & first_child))  # 289

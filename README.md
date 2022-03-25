@@ -288,5 +288,5 @@ print(int(root))  # 289
 ```
 
 ```python
-print(int(first_child & root))  # 0
+print(int(root & first_child))  # 289
 ```
