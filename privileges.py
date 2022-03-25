@@ -1,25 +1,9 @@
-from enum import Enum
 from json import dumps, JSONEncoder
 from typing import Any, Optional, Dict, List
 from uuid import uuid4
 
 from bits import Bit
-
-
-class EventsBitValues(Enum):
-    """Enum с номерами битов в соответствии с операциями"""
-    # Input
-    inMsg = 0  # получение текстовых сообщений
-    inSts = 1  # получение статуса присутствия
-    inTel = 2  # получение телефонных звонков
-    inVid = 3  # получение видео звонков
-    inVis = 4  # видимость в адресной книге
-    # Output
-    outMsg = 5  # отправка текстовых сообщений
-    outSts = 6  # отправка статуса присутствия
-    outTel = 7  # отправка телефонных звонков
-    outVid = 8  # отправка видео звонков
-    outVis = 9  # видимость в адресной книге
+from events import EventsBitValues, EventReverser
 
 
 class Privilege:
@@ -130,7 +114,7 @@ class Privilege:
         """
         result_bits = [None, ] * len(EventsBitValues)  # type: List[Optional[Bit]]
         for bit in EventsBitValues:
-            result_bits[bit.value] = self.get_bit(bit) & other.get_bit(bit)
+            result_bits[bit.value] = self.get_bit(bit) & other.get_bit(EventReverser.reverse(bit))
         return Privilege(bits=result_bits)
 
     @property

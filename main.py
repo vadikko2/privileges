@@ -1,8 +1,9 @@
 from json import dumps
 
 from bits import Bit
+from events import EventsBitValues
 from notify import Notifier
-from privileges import Privilege, EventsBitValues, PrivilegesEncoder
+from privileges import Privilege, PrivilegesEncoder
 
 if __name__ == '__main__':
     # определяем корневого родителя
