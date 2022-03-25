@@ -33,12 +33,12 @@ class EventReversMeta(type):
     def output(cls):
         return [event for event in EventsBitValues if cls._MIN_OUTPUT_NUMBER <= event.value < cls._MAX_OUTPUT_NUMBER]
 
-    def __init__(cls, name, bases, attrs, **kwargs):
+    def __init__(cls, *args, **kwargs):
         cls._reverse_map = {
             **{key: value for key, value in zip(cls.input, cls.output)},
             **{key: value for key, value in zip(cls.output, cls.input)}
         }
-        super(EventReversMeta, cls).__init__(name, bases, attrs, **kwargs)
+        super(EventReversMeta, cls).__init__(*args, **kwargs)
 
     def get(cls, event: 'EventsBitValues') -> 'EventsBitValues':
         return cls._reverse_map.get(event)
