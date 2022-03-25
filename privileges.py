@@ -44,7 +44,8 @@ class Privilege:
         # если есть родитель - берем значения у него
         if isinstance(parent, Privilege):
             return list(map(
-                lambda x: parent.get_bit(EventsBitValues(x[0])) if x[1] is None else x[1], enumerate(bits_sequence)
+                lambda bit: parent.get_bit(bit) if bits_sequence[bit.value] is None else bits_sequence[bit.value],
+                EventsBitValues
             ))
         # в противном случае берем дефолтное значение Bit.false
         return list(map(lambda x: Bit.false if x is None else x, bits_sequence))
