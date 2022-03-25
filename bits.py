@@ -29,3 +29,17 @@ class Bit(metaclass=BitMeta):
 
     def __eq__(self, other: 'Bit'):
         return self.bit == other.bit
+
+    def __and__(self, other: 'Bit'):
+        """
+        Правила разрешения:
+        LEFT   |  RIGHT   |  RESULT
+           0   |    0     |    0
+           0   |    1     |    0
+           1   |    0     |    0
+           1   |    1     |    1
+        """
+        if self.bit and other.bit:
+            return Bit.true
+        else:
+            return Bit.false

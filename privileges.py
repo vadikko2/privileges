@@ -127,32 +127,8 @@ class Privilege:
         """
         result_bits = [None, ] * len(EventsBitValues)  # type: List[Optional[Bit]]
         for bit in EventsBitValues:
-            result_bits[bit.value] = Privilege._privilege_and(
-                left=self.value[bit.value], right=other.value[bit.value]
-            )
+            result_bits[bit.value] = self.value[bit.value] & other.value[bit.value]
         return Privilege(bits=result_bits)
-           
-    @staticmethod
-    def _privilege_and(left: Bit, right: Bit) -> Bit:
-        """
-        Правила разрешения:
-        LEFT   |  RIGHT   |  RESULT
-           0   |    0     |    0
-           0   |    1     |    0
-           1   |    0     |    0
-           1   |    1     |    1
-        """
-        if not any([left.bit, right.bit]):
-            return Bit.false
-
-        if not left.bit and right.bit:
-            return Bit.false
-
-        if left.bit and not right.bit:
-            return Bit.true
-
-        if all([left.bit, right.bit]):
-            return Bit.true
 
     @property
     def value(self):
