@@ -110,7 +110,7 @@ class Privilege:
     def __and__(self, other: 'Privilege'):
         """
         Складывает два объекта по правилам привилегий.
-        Проверяет у одного Input а у другого Output на одни и те же услуги и наоборот.
+        Проверяет у одного Input, а у другого Output на одни и те же услуги и наоборот.
         """
         result_bits = [None, ] * len(EventsBitValues)  # type: List[Optional[Bit]]
         for bit in EventsBitValues:
