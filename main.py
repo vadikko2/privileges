@@ -10,10 +10,10 @@ from privileges.redis.redis import RedisController
 
 async def save_redis_callback(o: Privilege):
     redis_controller = getattr(o, RedisController.ATTR, None)
-    is_redis = isinstance(redis_controller, RedisController)
-    connected = isinstance(redis_controller, RedisController) and not redis_controller.pool.closed
-    if not is_redis or not connected:
-        raise ValueError('Ошибка получения RedisController из объекта %s' % o)
+    if not isinstance(redis_controller, RedisController):
+        raise AttributeError('Ошибка получения RedisController из объекта %r' % o)
+    if not redis_controller.pool.closed:
+        raise ConnectionError('Отсутствует подключение к %r' % redis_controller)
 
     try:
         await redis_controller.pool.set(o.uid, int(o))
