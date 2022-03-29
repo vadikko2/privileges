@@ -1,2 +1,8 @@
-def print_callback(obj: object):
-    print('Обновился объект %r' % obj)
+def default_callback(o: object):
+    """Дефолтный callback без реализации."""
+    raise NotImplemented
+
+
+def async_dfault_callback(o: object):
+    """Дефолтный callback без реализации."""
+    raise NotImplemented

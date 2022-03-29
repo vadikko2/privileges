@@ -1,3 +1,4 @@
+from abc import ABC
 from json import dumps, JSONEncoder
 from typing import Any, Optional, Dict, List
 from uuid import uuid4
@@ -6,7 +7,7 @@ from privileges.bits import Bit
 from privileges.events import EventsBitValues, EventReverser
 
 
-class Privilege:
+class Privilege(ABC):
     """
     Привилегия (элемент в цепочке иерархических привилегий).
     Содержит в себе:
@@ -40,19 +41,11 @@ class Privilege:
         # если есть родитель - берем значения у него
         if isinstance(parent, Privilege):
             return list(map(
-                lambda bit: parent.get_bit(bit) if bits_sequence[bit.value] is None else bits_sequence[bit.value],
+                lambda bit: parent.get(bit) if bits_sequence[bit.value] is None else bits_sequence[bit.value],
                 EventsBitValues
             ))
         # в противном случае берем дефолтное значение Bit.false
         return list(map(lambda x: Bit.false if x is None else x, bits_sequence))
-
-    def get_bit(self, bit_name: EventsBitValues):
-        """Получение бита по номеру"""
-        return self.value[bit_name.value]
-
-    def set_bit(self, bit_name: EventsBitValues, bit: Bit) -> None:
-        """Установка бита по номеру"""
-        self._bits[bit_name.value].bit = bit.bit
 
     @classmethod
     def create_privilege(
@@ -75,7 +68,7 @@ class Privilege:
                 result[bit.value] = privileges.get(bit)
             else:
                 if parent_privileges:
-                    result[bit.value] = parent_privileges.get_bit(bit)
+                    result[bit.value] = parent_privileges[bit]
         if not uid:
             if isinstance(parent_privileges, Privilege):
                 uid = parent_privileges.uid
@@ -99,6 +92,7 @@ class Privilege:
 
     @staticmethod
     def int_to_bits(value: int) -> List[Bit]:
+        """Переводит int число в последовательность бит, длиной 10"""
         bits = [Bit.false] * len(EventsBitValues)  # type: List[Bit]
         bit_string = format(value, '010b')
         for bit in EventsBitValues:
@@ -151,8 +145,26 @@ class Privilege:
         """
         result_bits = [None, ] * len(EventsBitValues)  # type: List[Optional[Bit]]
         for bit in EventsBitValues:
-            result_bits[bit.value] = self.get_bit(bit) & other.get_bit(EventReverser.reverse(bit))
+            result_bits[bit.value] = self.get(bit) & other.get(EventReverser.reverse(bit))
         return self.__class__(bits=result_bits)
+
+    def __getitem__(self, item: EventsBitValues) -> Optional[Bit]:
+        """Получение бита по номеру"""
+        return self.value[item.value]
+
+    def __setitem__(self, key: EventsBitValues, value: Bit):
+        """Установка бита по номеру"""
+        self._bits[key.value].bit = value.bit
+
+    def set(self, key: EventsBitValues, value: Bit):
+        if key.value > len(self.value) - 1:
+            raise IndexError
+        self.__setitem__(key, value)
+
+    def get(self, item: EventsBitValues) -> Optional[Bit]:
+        if item.value > len(self.value) - 1:
+            raise IndexError
+        return self.__getitem__(item)
 
     @property
     def value(self):

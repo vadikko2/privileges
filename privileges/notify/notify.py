@@ -1,11 +1,13 @@
 import gc
-from functools import wraps
+from abc import ABC, abstractmethod
 from typing import Type, Set, Callable, TypeVar, Any
+
+from privileges.notify.callbacks import default_callback
 
 Callback = TypeVar('Callback', bound=Callable[..., Any])
 
 
-class Notifier:
+class Notifier(ABC):
     """Оповещатель родительских объектов по событию notify"""
 
     @staticmethod
@@ -22,26 +24,19 @@ class Notifier:
                 )
 
     @staticmethod
-    def notify(callback: Callback, *args: Any, **kwargs: Any):
+    @abstractmethod
+    def notify(callback: Callback = default_callback, *args: Any, **kwargs: Any):
         """Уведомляет все объекты, ссылающиеся на obj того же типа, что и obj, вызывая для них callback"""
-
-        def decorator(obj_method: Callable):
-            @wraps(obj_method)
-            def wrapper(obj: object, *method_args: Any, **method_kwargs: Any):
-                result = obj_method(obj, *method_args, **method_kwargs)
-                Notifier.ping(obj, callback, *args, **kwargs)
-
-                parent_objects = set()  # type: Set[obj]
-                Notifier._find_parent_objects(obj, obj.__class__, parent_objects)
-                for ch_obj in parent_objects:
-                    Notifier.ping(ch_obj, callback, *args, **kwargs)
-                return result
-
-            return wrapper
-
-        return decorator
+        pass
 
     @staticmethod
+    @abstractmethod
+    def cm_notify(callback: Callback = default_callback, *args: Any, **kwargs: Any):
+        """Тот же notify, только работающий с classmthod-ами"""
+        pass
+
+    @staticmethod
+    @abstractmethod
     def ping(object_: object, callback: Callback, *args: Any, **kwargs: Any):
         """Пингует объект о том, что что-то надо сделать"""
-        callback(object_, *args, **kwargs)
+        pass

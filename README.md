@@ -74,12 +74,12 @@ second_child = Privilege.create_privilege(
 assert empty_child == root  # True
 
 # если поменять у родителя то, что потомок унаследовал - у потомка тоже изменится
-root.set_bit(bit_name=EventsBitValues.outSts, bit=Bit.false)
-assert first_child.get_bit(EventsBitValues.outSts) is second_child.get_bit(EventsBitValues.outSts)
+root.set(bit_name=EventsBitValues.outSts, bit=Bit.false)
+assert first_child.get(EventsBitValues.outSts) is second_child.get(EventsBitValues.outSts)
 
 # если у потомка было переопределено свое значение, после изменения у родителя - у потомка ничего не изменения
-root.set_bit(bit_name=EventsBitValues.inVis, bit=Bit.true)
-assert first_child.get_bit(EventsBitValues.inVis) is not second_child.get_bit(EventsBitValues.inVis)
+root.set(bit_name=EventsBitValues.inVis, bit=Bit.true)
+assert first_child.get(EventsBitValues.inVis) is not second_child.get(EventsBitValues.inVis)
 ```
 
 6. Выводим на экран дерево наследования привилегий
@@ -186,9 +186,9 @@ class NotifyingPrivileges(Privilege):
     """
 
     @Notifier.notify(callback=print_callback)
-    def set_bit(self, *args, **kwargs) -> None:
+    def set(self, *args, **kwargs) -> None:
         """Уведомляет всех родителей при внесении изменений в привилегию"""
-        return super(NotifyingPrivileges, self).set_bit(*args, **kwargs)
+        return super(NotifyingPrivileges, self).set(*args, **kwargs)
 ```
 
 Создаем новые объекты класса `NotifyingPrivileges`. Наследуем друг от друга.
@@ -215,7 +215,7 @@ empty_child_ = NotifyingPrivileges.create_privilege({}, parent_privileges=root_,
 Изменяем объект `ROOT_`
 
 ```python
-root_.set_bit(EventsBitValues.inVis, Bit.false)
+root_.set(EventsBitValues.inVis, Bit.false)
 ```
 
 Ловим уведомление об изменении у родительских объектов
@@ -274,7 +274,7 @@ root_.set_bit(EventsBitValues.inVis, Bit.false)
 Изменяем объект `FIRST_`
 
 ```python
-first_child_.set_bit(EventsBitValues.inVis, Bit.true)
+first_child_.set(EventsBitValues.inVis, Bit.true)
 ```
 
 Ловим уведомление об изменении у родительских объектов
