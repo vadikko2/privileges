@@ -9,10 +9,10 @@ from privileges.redis.redis import RedisController
 
 
 async def save_redis_callback(o: Privilege):
-    redis_controller = getattr(o, RedisController.ATTR, None)
+    redis_controller = getattr(o, RedisController.attr, None)
     if not isinstance(redis_controller, RedisController):
         raise AttributeError('Ошибка получения RedisController из объекта %r' % o)
-    if not redis_controller.pool.closed:
+    if redis_controller.pool.closed:
         raise ConnectionError('Отсутствует подключение к %r' % redis_controller)
 
     try:
@@ -74,7 +74,7 @@ class AsyncRedisPrivileges(Privilege):
 
 
 async def main():
-    RedisController.HOST = 'suv1'
+    RedisController.host = 'localhost'
 
     redis = await RedisController.connect(db=5)
 

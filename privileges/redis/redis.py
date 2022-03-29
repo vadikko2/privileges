@@ -1,5 +1,5 @@
 from asyncio import get_event_loop, AbstractEventLoop
-from typing import Optional
+from typing import Optional, Union
 
 import aioredis
 from aioredis import Redis
@@ -8,14 +8,44 @@ from aioredis import Redis
 class RedisControllerMeta(type):
 
     def __init__(cls, name, bases, attrs):
+        cls._host = 'localhost'
+        cls._port = '6379'
+        cls._attr = 'redis'
         super(RedisControllerMeta, cls).__init__(name, bases, attrs)
+
+    @property
+    def host(cls):
+        return cls._host
+
+    @host.setter
+    def host(cls, value: str):
+        if not isinstance(value, str):
+            raise ValueError('host must be str')
+        cls._host = value
+
+    @property
+    def port(cls):
+        return cls._port
+
+    @port.setter
+    def port(cls, value: Union[int, str]):
+        if not isinstance(value, str) or not isinstance(value, int):
+            raise ValueError('port must be int-able str or int')
+        cls._port = value
+
+    @property
+    def attr(self):
+        return self._attr
+
+    @attr.setter
+    def attr(cls, value: str):
+        if not isinstance(value, str):
+            raise ValueError('attr must be str')
+        cls._attr = value
 
 
 class RedisController(metaclass=RedisControllerMeta):
     """Контроллер взаимодействия с Redis"""
-    HOST = 'localhost'
-    PORT = '6379'
-    ATTR = 'redis'
 
     def __init__(self, redis_pool: Redis, loop: AbstractEventLoop = get_event_loop()):
         self._loop = loop
@@ -38,12 +68,12 @@ class RedisController(metaclass=RedisControllerMeta):
     ) -> Redis:
         """Возвращает подключенный инстанс Redis"""
         try:
-            pool_string = 'redis://{}:{}'.format(RedisController.HOST, RedisController.PORT)
+            pool_string = 'redis://{}:{}'.format(RedisController.host, RedisController.port)
             redis = await aioredis.create_redis_pool(pool_string, db=db, encoding='utf-8')  # type: Redis
             print('Соединение с %s установлено', redis.address)
         except Exception as e:
             raise ConnectionRefusedError(
-                'Ошибка при установке соединения с %s: %s' % ((RedisController.HOST, RedisController.PORT), e)
+                'Ошибка при установке соединения с %s: %s' % ((RedisController.host, RedisController.port), e)
             )
         return redis
 
@@ -71,5 +101,5 @@ class RedisController(metaclass=RedisControllerMeta):
         await RedisController.close_redis_pool(redis=self._redis)
 
     def setup(self, o: object):
-        redis_controller = getattr(o, RedisController.ATTR, self)
-        setattr(o, RedisController.ATTR, redis_controller)
+        redis_controller = getattr(o, RedisController.attr, self)
+        setattr(o, RedisController.attr, redis_controller)
